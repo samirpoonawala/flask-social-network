@@ -28,8 +28,25 @@ class User(UserMixin, Model):
         except IntegrityError:
             raise ValueError("User already exists")
             
-
+class Post(Model):
+  timestamp = DateTimeField(default=datetime.datetime.now)
+  user = ForeignKeyField(rel_model=User, related_name='posts')
+  content = TextField()
+  
+  class Meta:
+    database = DATABASE
+    order_by = ('-timestamp',)
+    
+    def get_posts(self):
+      return Post.select().where(Post.user == self)
+    
+    def get_stream(self):
+      """This is going to be updated later so that we can get a feed of our posts as well as those of the users we follow"""
+      return Post.select().where((Post.user == self))
+            
 def initialize():
     DATABASE.connect()
     DATABASE.create_tables([User], safe=True)
     DATABASE.close()
+
+
