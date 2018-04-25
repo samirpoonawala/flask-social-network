@@ -12,15 +12,22 @@
         </div>
         <div class="grid-33">
             <h5>Followers</h5>
-            <p>0</p>
+            <p>{{ users.followers().count() }}</p>
         </div>
         <div class="grid-33">
             <h5>Following</h5>
-            <p>0</p>
+            <p>{{ users.following().count() }}</p>
         </div>
     </div>
     <div class="grid-25">
         <!-- Follow/unfollow button -->
+        {% if current_user.is_authenticated() %}
+          {% if user != current_user %}
+          {% if not user in current_user.following() %}
+            <a href="{{ url_for("follow", username = user.username) }}" class = "small">Follow</a>
+          {% endif %}
+            <a href="{{ url_for("unfollow", username = user.username) }}" class = "small">Unfollow</a>
+        {% endif %}
     </div>
 </div>
 
