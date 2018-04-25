@@ -86,18 +86,32 @@ def post():
 
 @app.route('/')
 def index():
-  return "Hey"
+  stream = models.Post.select().limit(100)
+  return render_template("stream.html", stream = stream)
   
+@app.route('/stream')
+@app.route('/stream/<username>')
+def stream(username=None):
+    template = 'stream.html'
+    if username and username != current_user.username:
+        user = models.User.select().where(models.User.username**username).get()
+        stream = user.posts.limit(100)
+    else:
+        stream = current_user.get_stream().limit(100)
+        user = current_user
+    if username:
+        template = 'user_stream.html'
+    return render_template(template, stream=stream, user=user)
   
 if __name__ == "__main__":
+  models.initialize()
   try:
-    models.initialize()
     models.User.create_user(
       username='samirpoonawala',
       email='samirpoonawala@gmail.com',
       password='password',
       admin=True    
-    )
+  )
   except ValueError:
     pass
   app.run(debug=DEBUG, host=HOST, port=PORT)
