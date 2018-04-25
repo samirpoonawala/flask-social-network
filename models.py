@@ -21,8 +21,9 @@ class User(UserMixin, Model):
         return Post.select().where(Post.user == self)
     
     def get_stream(self):
-        return Post.select().where((Post.user == self))
-    
+        """Want all the posts from a user's followers as well as the user's own posts"""
+        return Post.select().where((Post.user << self.following()) | (Post.user == self))
+      
     def following(self):
         """The users that we are following"""
         return User.select().join(Relationship, on=Relationship.to_user).where(Relationship.from_user == self)
@@ -63,7 +64,7 @@ class Relationship(Model):
   
   class Meta:
     database = DATABASE
-    indexes = ((("from_user", "to_user"), True))
+    indexes = ((('from_user', 'to_user'), True))
   
 
 def initialize():
